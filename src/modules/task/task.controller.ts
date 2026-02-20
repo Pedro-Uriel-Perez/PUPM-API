@@ -9,33 +9,38 @@ import {
   Put,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { TaskDto } from './dto/task.dto';
-import type { Task } from './interface/task.interface';
+import { CreateTaskDto } from './dto/task.dto';
 
-@Controller('api/task')
+@Controller('api/tasks')
+//@UsePipes(ValidationPipe) realizar un pipe de manera interna
 export class TaskController {
   constructor(private taskSvc: TaskService) {}
 
   @Get()
-  public getTasks(): Task[] {
-    return this.taskSvc.getTask();
+  public async getTasks(): Promise<any> {
+    return await this.taskSvc.getTasks();
+  }
+
+  @Get('pg')
+  public async getTasksPg(): Promise<any> {
+    return await this.taskSvc.getTasksPg();
   }
 
   @Get(':id')
-  public getTasksById(@Param('id', ParseIntPipe) id: number): Task | undefined {
+  public getTasksById(@Param('id', ParseIntPipe) id: number): string {
     return this.taskSvc.getTaskById(id);
   }
 
   @Post()
-  public insertTask(@Body() task: TaskDto): Task {
+  public insertTask(@Body() task: CreateTaskDto): any {
     return this.taskSvc.insert(task);
   }
 
   @Put(':id')
   public updateTask(
     @Param('id', ParseIntPipe) id: number,
-    @Body() task: TaskDto,
-  ): Task[] {
+    @Body() task: any,
+  ): any[] {
     return this.taskSvc.update(id, task);
   }
 

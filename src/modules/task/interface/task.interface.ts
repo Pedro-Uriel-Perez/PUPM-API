@@ -2,5 +2,6 @@ export interface Task {
   id?: number;
   name?: string;
   description?: string;
-  priority?: string;
+  priority?: number;
+  user_id?: number;
 }

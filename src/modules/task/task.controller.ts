@@ -3,49 +3,67 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
   Put,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { CreateTaskDto } from './dto/task.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update.task.dto';
 
-@Controller('api/tasks')
-//@UsePipes(ValidationPipe) realizar un pipe de manera interna
+@Controller('api/task')
 export class TaskController {
-  constructor(private taskSvc: TaskService) {}
+  constructor(private readonly taskSvc: TaskService) {}
 
   @Get()
-  public async getTasks(): Promise<any> {
+  public async getTask(): Promise<any> {
     return await this.taskSvc.getTasks();
   }
 
-  @Get('pg')
-  public async getTasksPg(): Promise<any> {
-    return await this.taskSvc.getTasksPg();
-  }
-
   @Get(':id')
-  public getTasksById(@Param('id', ParseIntPipe) id: number): string {
-    return this.taskSvc.getTaskById(id);
+  public async getTaskById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<any> {
+    const result = await this.taskSvc.getTaskById(id);
+
+    if (result === undefined) {
+      throw new HttpException(
+        `Tarea con ID ${id} no encontrada`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return result;
   }
 
   @Post()
-  public insertTask(@Body() task: CreateTaskDto): any {
-    return this.taskSvc.insert(task);
+  public async insertTask(@Body() task: CreateTaskDto): Promise<any> {
+    const result = await this.taskSvc.insertTasks(task);
+
+    if (result === undefined) {
+      throw new HttpException(
+        'Tarea no registrada',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return result;
   }
 
   @Put(':id')
-  public updateTask(
+  public async updateTask(
     @Param('id', ParseIntPipe) id: number,
-    @Body() task: any,
-  ): any[] {
-    return this.taskSvc.update(id, task);
+    @Body() task: UpdateTaskDto,
+  ): Promise<any> {
+    return await this.taskSvc.updateTask(id, task);
   }
 
   @Delete(':id')
-  public deleteTask(@Param('id', ParseIntPipe) id: number): string {
-    return this.taskSvc.delete(id);
+  public async deleteTask(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<any> {
+    return await this.taskSvc.deleteTask(id);
   }
 }

@@ -1,57 +1,73 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateTaskDto } from './dto/task.dto';
-import type { Task } from './interface/task.interface';
-import type { Connection } from 'mysql2/promise';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update.task.dto';
 import type { Client } from 'pg';
+import type { Connection } from 'mysql2/promise';
+import type { Task } from './entities/task.entitie';
 
 @Injectable()
 export class TaskService {
   constructor(
-    @Inject('MYSQL_CONNECTION') private db: Connection,
     @Inject('POSTGRES_CONNECTION') private pg: Client,
+    @Inject('MYSQL_CONNECTION') private mysql: Connection,
   ) {}
 
-  private tasks: Task[] = [];
-
-  public async getTasks(): Promise<Task[]> {
-    const query = 'SELECT * FROM tasks';
-    const [result] = await this.db.query(query);
-
-    return result as Task[];
-  }
-
-  public async getTasksPg(): Promise<Task[]> {
+  async getTasks(): Promise<Task[]> {
     const query = 'SELECT * FROM tasks';
     const result = await this.pg.query(query);
-
     return result.rows as Task[];
   }
 
-  public getTaskById(id: number): string {
-    return `Tarea con el id: ${id}`;
+  async getTaskById(id: number): Promise<Task | undefined> {
+    const query = 'SELECT * FROM tasks WHERE id = $1';
+    const result = await this.pg.query(query, [id]);
+    return result.rows[0] as Task | undefined;
   }
 
-  public insert(task: CreateTaskDto): Task {
-    const id = this.tasks.length + 1;
-    const newTask: Task = { ...task, id };
-    this.tasks.push(newTask);
-    return newTask;
+  async insertTasks(task: CreateTaskDto): Promise<Task> {
+    const sql = `INSERT INTO tasks (name, description, priority, user_id) VALUES ($1, $2, $3, $4) RETURNING *`;
+    const result = await this.pg.query(sql, [
+      task.name,
+      task.description,
+      task.priority,
+      task.user_id,
+    ]);
+    return result.rows[0] as Task;
   }
 
-  public update(id: number, task: Task): Task[] {
-    this.tasks = this.tasks.map((t) => {
-      if (t.id === id) {
-        if (task.name) t.name = task.name;
-        if (task.description) t.description = task.description;
-        if (task.priority) t.priority = task.priority;
-      }
-      return t;
-    });
-    return this.tasks;
+  async updateTask(
+    id: number,
+    taskUpdate: UpdateTaskDto,
+  ): Promise<Task | undefined> {
+    const task = await this.getTaskById(id);
+
+    if (!task) {
+      return undefined;
+    }
+
+    const sql = `UPDATE tasks SET name = $1, description = $2, priority = $3 WHERE id = $4 RETURNING *`;
+    const result = await this.pg.query(sql, [
+      taskUpdate.name ?? task.name,
+      taskUpdate.description ?? task.description,
+      taskUpdate.priority ?? task.priority,
+      id,
+    ]);
+    return result.rows[0] as Task;
   }
 
-  public delete(id: number): string {
-    this.tasks = this.tasks.filter((t) => t.id !== id);
-    return 'Tarea eliminada correctamente';
+  async deleteTask(
+    id: number,
+  ): Promise<{ message: string; task: Task } | undefined> {
+    const sql = 'DELETE FROM tasks WHERE id = $1 RETURNING *';
+    const result = await this.pg.query(sql, [id]);
+
+    if (result.rows.length === 0) {
+      return undefined;
+    }
+
+    return {
+      message: 'Tarea eliminada correctamente',
+      task: result.rows[0] as Task,
+    };
   }
 }

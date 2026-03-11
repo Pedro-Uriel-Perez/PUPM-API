@@ -13,11 +13,15 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UtilService } from 'src/common/services/util.service';
 
 @Controller('api/user')
 @ApiTags('User')
 export class UserController {
-  constructor(private readonly userSvc: UserService) {}
+  constructor(
+    private readonly userSvc: UserService,
+    private readonly utilSvc: UtilService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
@@ -34,8 +38,8 @@ export class UserController {
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo usuario' })
-  public async createUser(@Body() user: CreateUserDto) {
-    return await this.userSvc.createUser(user);
+  public async insertUser(@Body() user: CreateUserDto) {
+    return await this.userSvc.insertUser(user);
   }
 
   @Put(':id')

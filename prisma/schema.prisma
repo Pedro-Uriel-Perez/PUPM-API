@@ -13,8 +13,9 @@ model User {
   name       String
   lastname   String
   username   String   @unique
-  password   String
-  created_at DateTime @default(now())
+  password     String
+  refreshToken String?
+  created_at   DateTime @default(now())
   tasks      Task[]
 }
 

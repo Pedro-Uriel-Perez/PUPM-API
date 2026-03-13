@@ -1,6 +1,7 @@
-import { Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -10,8 +11,8 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesion' })
-  public login(): string {
-    return this.authService.login();
+  public login(@Body() dto: LoginDto) {
+    return this.authService.login(dto);
   }
 
   @Get('profile')

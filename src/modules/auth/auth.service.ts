@@ -1,8 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../../prisma.service';
+import { LoginDto } from './dto/login.dto';
+import { UtilService } from '../../common/services/util.service';
 
 @Injectable()
 export class AuthService {
-  login(): string {
-    return 'Autenticacion correcta';
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private utilSvc: UtilService,
+  ) {}
+
+  async login(dto: LoginDto): Promise<{ access_token: string; refresh_token: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+    });
+
+    if (!user) throw new UnauthorizedException();
+
+    const isValid = await this.utilSvc.checkPassword(dto.password, user.password);
+    if (!isValid) throw new UnauthorizedException();
+
+    const payload = { sub: user.id, username: user.username };
+
+    const access_token = await this.jwtService.signAsync(payload);
+
+    const refresh_token = this.utilSvc.generateToken(payload, '7d');
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: refresh_token },
+    });
+
+    return { access_token, refresh_token };
   }
 }

@@ -1,5 +1,6 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 
@@ -15,9 +16,10 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @UseGuards(AuthGuard)
   @Get('profile')
   @ApiOperation({ summary: 'Obtener perfil del usuario' })
-  public profile(): string {
-    return 'Perfil del usuario';
+  public profile(@Request() req: any) {
+    return req.user;
   }
 }

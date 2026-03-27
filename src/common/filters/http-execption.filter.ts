@@ -15,6 +15,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
 
+    if (status === 403) {
+      return response.redirect('/auth/login');
+    }
+
     response.status(status).json({
       statusCode: status,
       message:

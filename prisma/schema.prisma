@@ -22,6 +22,7 @@ model User {
   username   String   @unique
   password     String
   refreshToken String?
+  hash String?
   created_at   DateTime @default(now())
   tasks      Task[]
   rol_id Int?

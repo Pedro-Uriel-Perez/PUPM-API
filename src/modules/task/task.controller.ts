@@ -10,8 +10,10 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update.task.dto';
@@ -19,6 +21,7 @@ import type { Task } from './entities/task.entitie';
 
 @Controller('api/task')
 @ApiTags('Task')
+@UseGuards(AuthGuard)
 export class TaskController {
   constructor(private readonly taskSvc: TaskService) {}
 

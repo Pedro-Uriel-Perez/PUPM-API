@@ -1,15 +1,17 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../prisma.service';
+import { UtilService } from '../../common/services/util.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 const omitPassword = { password: true } as const;
-const SALT_ROUNDS = 10;
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private utilSvc: UtilService,
+  ) {}
 
   async getUsers() {
     return this.prisma.user.findMany({ omit: omitPassword });
@@ -26,10 +28,9 @@ export class UserService {
 
   async insertUser(dto: CreateUserDto) {
     const exists = await this.prisma.user.findUnique({ where: { username: dto.username } });
-    if (exists)
-      throw new ConflictException(`El username '${dto.username}' ya está en uso`);
+    if (exists) throw new ConflictException(`El username '${dto.username}' ya está en uso`);
 
-    const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
+    const hashedPassword = await this.utilSvc.hashPassword(dto.password);
 
     return this.prisma.user.create({
       omit: omitPassword,
@@ -52,7 +53,7 @@ export class UserService {
     };
 
     if (dto.password) {
-      data.password = await bcrypt.hash(dto.password, SALT_ROUNDS);
+      data.password = await this.utilSvc.hashPassword(dto.password);
     }
 
     return this.prisma.user.update({

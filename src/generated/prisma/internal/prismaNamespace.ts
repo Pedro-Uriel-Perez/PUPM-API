@@ -386,7 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Rol: 'Rol',
   User: 'User',
-  Task: 'Task'
+  Task: 'Task',
+  Logs: 'Logs'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -402,7 +403,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "rol" | "user" | "task"
+    modelProps: "rol" | "user" | "task" | "logs"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +629,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Logs: {
+      payload: Prisma.$LogsPayload<ExtArgs>
+      fields: Prisma.LogsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LogsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LogsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>
+        }
+        findFirst: {
+          args: Prisma.LogsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LogsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>
+        }
+        findMany: {
+          args: Prisma.LogsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>[]
+        }
+        create: {
+          args: Prisma.LogsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>
+        }
+        createMany: {
+          args: Prisma.LogsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LogsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>[]
+        }
+        delete: {
+          args: Prisma.LogsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>
+        }
+        update: {
+          args: Prisma.LogsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>
+        }
+        deleteMany: {
+          args: Prisma.LogsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LogsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LogsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>[]
+        }
+        upsert: {
+          args: Prisma.LogsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LogsPayload>
+        }
+        aggregate: {
+          args: Prisma.LogsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLogs>
+        }
+        groupBy: {
+          args: Prisma.LogsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LogsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LogsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -700,6 +775,19 @@ export const TaskScalarFieldEnum = {
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const LogsScalarFieldEnum = {
+  id: 'id',
+  statusCode: 'statusCode',
+  timestamp: 'timestamp',
+  path: 'path',
+  error: 'error',
+  errorCode: 'errorCode',
+  session_id: 'session_id'
+} as const
+
+export type LogsScalarFieldEnum = (typeof LogsScalarFieldEnum)[keyof typeof LogsScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -892,6 +980,7 @@ export type GlobalOmitConfig = {
   rol?: Prisma.RolOmit
   user?: Prisma.UserOmit
   task?: Prisma.TaskOmit
+  logs?: Prisma.LogsOmit
 }
 
 /* Types for Logging */

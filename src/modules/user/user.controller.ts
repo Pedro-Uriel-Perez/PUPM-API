@@ -8,20 +8,19 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UtilService } from 'src/common/services/util.service';
 
 @Controller('api/user')
 @ApiTags('User')
+@UseGuards(AuthGuard)
 export class UserController {
-  constructor(
-    private readonly userSvc: UserService,
-    private readonly utilSvc: UtilService,
-  ) {}
+  constructor(private readonly userSvc: UserService) {}
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
